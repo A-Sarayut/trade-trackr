@@ -1,6 +1,9 @@
 <template>
-  <div>
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
-  </div>
+  <UApp>
+    <Navbar />
+    <UContainer class="py-8">
+      <PageName />
+      <NuxtPage />
+    </UContainer>
+  </UApp>
 </template>
