@@ -1,6 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
+  ssr: false,
+  app: {
+    baseURL: process.env.NODE_ENV === "production" ? "/trade-trackr/" : "/",
+  },
   devtools: { enabled: true },
   modules: ["@nuxt/ui"],
   css: ["~/assets/css/main.css"], // import global CSS styles from nuxt ui
