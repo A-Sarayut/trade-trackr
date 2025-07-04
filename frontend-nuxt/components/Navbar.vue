@@ -32,14 +32,14 @@ const isDark = computed({
         <div class="flex-1 flex gap-2 items-center">
             <UNavigationMenu :items="items" class="w-full justify-end">
                 <template #item="{ item }">
-                    <NuxtLink :to="item.to" class="text-md font-medium cursor-pointer">
+                    <NuxtLink :to="item.to" class="text-md font-medium">
                         {{ item.label }}
                     </NuxtLink>
                 </template>
             </UNavigationMenu>
             <ClientOnly v-if="!colorMode?.forced">
-                <UButton class="cursor-pointer" :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" color="neutral"
-                    variant="ghost" @click="isDark = !isDark" />
+                <UButton :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" color="neutral" variant="ghost"
+                    @click="isDark = !isDark" />
                 <template #fallback>
                     <div class="size-8" />
                 </template>

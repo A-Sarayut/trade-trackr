@@ -7,7 +7,7 @@ defineProps<{
 
 <template>
     <UCard>
-        <h2 class="text-lg font-semibold truncate" :title="title">{{ title ?? 'N/A' }}</h2>
-        <p class="text-2xl font-bold truncate" :title="String(value)">{{ value ?? 0 }}</p>
+        <h2 class="text-lg font-bold text-neutral-500 truncate" :title="title">{{ title ?? 'N/A' }}</h2>
+        <p class="text-3xl font-extrabold truncate" :title="String(value)">{{ value ?? 0 }}</p>
     </UCard>
 </template>

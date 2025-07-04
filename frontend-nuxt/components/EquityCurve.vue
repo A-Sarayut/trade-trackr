@@ -38,7 +38,7 @@ const chartOptions: ChartOptions = {
 
 <template>
     <div class="">
-        <h1 class="first-letter:uppercase font-bold mb-4 text-2xl">
+        <h1 class="first-letter:uppercase font-bold text-neutral-500 mb-4 text-2xl">
             Equity Curve
         </h1>
         <BaseChart class="max-h-[280px]" :data="chartData" :options="chartOptions" />
