@@ -1,22 +1,19 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import { enumResult, enumStrategy } from '~/types/trade'
+import { enumResult, enumSide, enumStrategy, type Trade } from '~/types/trade'
 
-const open = ref(false)
-const toast = useToast()
-const strategy = enumStrategy
-const tradeHistory = useTradeHistoryStore()
+const open = defineModel({ type: Boolean, default: false })
 
 const schema = z.object({
     entryDate: z.string().date('Must be a valid date'),
     exitDate: z.optional(z.string().date('Must be a valid date')),
-    asset: z.string().min(1, 'Asset is required')
+    asset: z.string().min(1, 'Asset is required, example: "BTC"')
         .max(5, 'Asset must be less than 5 characters'),
     side: z.enum(['Long', 'Short'], {
         errorMap: () => ({ message: 'Side must be either Long or Short' })
     }),
-    strategy: z.enum(strategy, {
+    strategy: z.enum(enumStrategy, {
         errorMap: () => ({ message: 'Strategy must be one of the predefined strategies' })
     }),
     rr: z.number().min(0, 'RR must be a positive number'),
@@ -39,6 +36,26 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>
 
+const props = defineProps<{
+    isEdit?: boolean,
+    initialData?: Partial<Schema>
+}>()
+
+const emit = defineEmits<{
+    (e: 'submit', data: Trade): void
+}>()
+
+
+onMounted(() => {
+    if (props.initialData) {
+        state.value = {
+            ...state.value,
+            ...props.initialData
+        }
+    }
+})
+
+
 const state = ref<Schema>({
     entryDate: new Date().toISOString().split('T')[0], // Default to today
     exitDate: undefined,
@@ -59,8 +76,6 @@ watch(() => state.value.result, (newValue) => {
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-    toast.add({ title: 'Success', description: 'The form has been submitted.', color: 'success' })
-
     const newTrade = {
         ...event.data,
         exitDate: event.data.exitDate ?? null, // Always provide exitDate
@@ -68,18 +83,17 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         pnl: event.data.pnl ?? null, // Always provide exitDate
     }
 
-    tradeHistory.addTrade(newTrade)
-    open.value = false
+    emit('submit', newTrade)
 }
 </script>
 
 <template>
-    <UModal v-model:open="open" title="New trade" description="Create a new trade" :close="{
-        color: 'primary',
-        variant: 'outline',
-        class: 'rounded-md'
-    }" :ui="{ footer: 'justify-end' }">
-        <UButton label="New Trade" icon="ic-baseline-add" color="primary" />
+    <UModal v-model:open="open" :title="isEdit ? 'Update trade' : 'New trade'"
+        :description="isEdit ? 'Update the trade' : 'Create a new trade'" :close="{
+            color: 'primary',
+            variant: 'outline',
+            class: 'rounded-md'
+        }" :ui="{ footer: 'justify-end' }">
 
         <template #body>
             <UForm :schema="schema" :state="state" class="grid grid-cols-1 sm:grid-cols-2 gap-4" @submit="onSubmit">
@@ -92,16 +106,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 </UFormField>
 
                 <UFormField size="lg" label="Asset" name="asset">
-                    <UInput v-model="state.asset" class="input-field" placeholder="BTC" />
+                    <UInput v-model="state.asset" class="input-field" />
                 </UFormField>
 
                 <UFormField size="lg" label="Side" name="side">
-                    <USelect v-model="state.side" :items="['Long', 'Short']" class="input-field w-full"
-                        placeholder="BTC" />
+                    <USelect v-model="state.side" :items="[...enumSide]" class="input-field w-full" placeholder="BTC" />
                 </UFormField>
 
                 <UFormField size="lg" label="Strategy" name="strategy">
-                    <USelect v-model="state.strategy" :items="[...strategy]" class="input-field w-full" />
+                    <USelect v-model="state.strategy" :items="[...enumStrategy]" class="input-field w-full" />
                 </UFormField>
 
                 <UFormField size="lg" label="RR" name="rr">

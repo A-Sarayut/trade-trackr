@@ -1,13 +1,13 @@
 export interface Trade {
   entryDate: string; // dd/mm/yyyy
-  exitDate: string | null | undefined; // dd/mm/yyyy
+  exitDate: string | null; // dd/mm/yyyy
   asset: string; // e.g., "AAPL", "BTC"
-  side: "Long" | "Short";
+  side: string; // e.g., "Long", "Short"
   strategy: string; // e.g., "Scalping", "Day Trading", "Swing Trading", "Position Trading"
-  rr: number | null | undefined; // Risk-Reward ratio
-  result: "Pending" | "Take profit" | "Stop profit" | "Stop loss" | "Cancel";
-  pnl: number | null | undefined; // Profit and Loss
-  note: string | null | undefined; // Additional notes about the trade
+  rr: number; // Risk-Reward ratio
+  result: string; 
+  pnl: number | null; // Profit and Loss
+  note: string | null; // Additional notes about the trade
 }
 
 export const enumResult = [
@@ -23,4 +23,9 @@ export const enumStrategy = [
   "Day Trading",
   "Swing Trading",
   "Position Trading",
+] as const;
+
+export const enumSide = [
+  "Long",
+  "Short",
 ] as const;

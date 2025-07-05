@@ -1,11 +1,39 @@
 <script setup lang="ts">
 import EquityCurve from '~/components/EquityCurve.vue';
+import {  type Trade } from '~/types/trade'
 
 definePageMeta({
     name: 'dashboard'
 })
 
-// const tradeHistory = useTradeHistoryStore()
+const open = ref(false);
+const toast = useToast();
+const tradeHistory= useTradeHistoryStore();
+
+const handleAddTrade = (trade: Trade) => {
+  try {
+    tradeHistory.addTrade(trade);
+  } catch (error) {
+    console.error("Error adding trade:", error);
+    toast.add({
+      title: "Error",
+      description: "Failed to add the trade. Please try again.",
+      color: "error",
+    });
+    return;
+  }
+
+  toast.add({
+    title: "Success",
+    description: "Trade added successfully.",
+    color: "success",
+  });
+
+  open.value = false;
+};
+
+
+
 </script>
 
 <template>
@@ -19,13 +47,9 @@ definePageMeta({
         <EquityCurve />
         <section class="flex flex-col justify-end">
             <span class="ms-auto">
-                <NewTrade />
+                 <UButton @click="open = true" label="New Trade" icon="ic-baseline-add"/>
+                <NewTrade v-model="open" @submit="handleAddTrade" />
             </span>
-
-            <!-- <div v-for="trade in tradeHistory.tradeList" class="mb-4">
-                {{ trade }}
-            </div> -->
-
             <TradeList />
         </section>
     </div>
