@@ -23,13 +23,13 @@ interface Props {
     options?: ChartOptions
 }
 
-const props = withDefaults(defineProps < Props > (), {
+const props = withDefaults(defineProps<Props>(), {
     chartId: 'line-chart',
     type: 'line',
     options: () => ({})
 })
 
-const canvasRef = ref < HTMLCanvasElement | null > (null)
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 onMounted(() => {
     if (canvasRef.value) {

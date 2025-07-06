@@ -138,6 +138,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                         }" />
                 </UFormField>
 
+                <UFormField size="lg" label="Note" name="note" class="col-span-full">
+                    <UTextarea v-model="state.note" class="input-field w-full" autoresize :maxrows="8" />
+                </UFormField>
+
                 <div class="col-span-full flex justify-end">
                     <UButton type="submit">
                         Submit

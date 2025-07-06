@@ -22,12 +22,18 @@ const columns: TableColumn<Trade>[] = [
 const bufferTrade = ref<Trade | null>(null);
 const editTradeIndex = ref<number | null>(null);
 const isEditing = ref(false);
+const confirmModal = ref(false);
 
 const onEditTrade = (trade: Trade, index: number) => {
     bufferTrade.value = trade;
     editTradeIndex.value = index;
     isEditing.value = true;
 }
+
+const onDeleteTrade = (index: number) => {
+    confirmModal.value = true;
+    editTradeIndex.value = index;
+};
 
 const handleUpdateTrade = (trade: Trade) => {
     try {
@@ -58,6 +64,38 @@ const handleUpdateTrade = (trade: Trade) => {
     });
 
     isEditing.value = false;
+};
+
+const handleDeleteTrade = () => {
+    try {
+        if (editTradeIndex.value === null) {
+            console.error("Delete index is null, cannot delete trade.");
+            toast.add({
+                title: "Error",
+                description: "Failed to delete the trade. Please try again.",
+                color: "error",
+            });
+            return;
+        }
+        tradeHistory.removeTrade(editTradeIndex.value);
+    } catch (error) {
+        console.error("Error deleting trade:", error);
+        toast.add({
+            title: "Error",
+            description: "Failed to delete the trade. Please try again.",
+            color: "error",
+        });
+        editTradeIndex.value = null;
+        return;
+    }
+
+    toast.add({
+        title: "Success",
+        description: "Trade deleted successfully.",
+        color: "success",
+    });
+
+    editTradeIndex.value = null;
 };
 
 </script>
@@ -109,11 +147,40 @@ const handleUpdateTrade = (trade: Trade) => {
             </td>
         </template>
 
+        <template #note-cell="{ row }">
+            <td class="text-sm">
+                <UModal v-if="row.original.note" title="Note" :close="{
+                    color: 'primary',
+                    variant: 'outline',
+                    class: 'rounded-md'
+                }">
+                    <UButton color="neutral" icon="ic:outline-sticky-note-2" variant="link" />
+
+                    <template #body>
+                        <div class="overflow-auto">
+                            <pre class="font-sans">{{ row.original.note }}</pre>
+                        </div>
+                    </template>
+                </UModal>
+            </td>
+
+        </template>
+
         <template #actions-cell="{ row }">
             <td class="text-sm">
-                <UButton color="primary" class="text-xs" @click="onEditTrade(row.original, row.index)">
-                    Edit
-                </UButton>
+                <UDropdownMenu
+                    :items="[[
+                        { label: 'Edit', icon: 'ic-baseline-edit', onSelect: () => onEditTrade(row.original, row.index) },
+                        { label: 'Delete', icon: 'ic-baseline-delete-forever', color: 'error', onSelect: () => onDeleteTrade(row.index) }]]"
+                    :content="{
+                        align: 'start',
+                        side: 'bottom',
+                        sideOffset: 8
+                    }" :ui="{
+                        content: 'w-48'
+                    }">
+                    <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" />
+                </UDropdownMenu>
             </td>
         </template>
     </UTable>
@@ -128,4 +195,22 @@ const handleUpdateTrade = (trade: Trade) => {
         exitDate: bufferTrade.exitDate ?? undefined
     }" :key="editTradeIndex?.toString()" @submit="handleUpdateTrade" />
 
+    <ConfirmModal v-model:open="confirmModal" @confirm="handleDeleteTrade"
+        description="You really want to delete this trade" />
 </template>
+
+
+<style scoped>
+pre {
+    white-space: pre-wrap;
+    /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;
+    /* Mozilla, since 1999 */
+    white-space: -pre-wrap;
+    /* Opera 4-6 */
+    white-space: -o-pre-wrap;
+    /* Opera 7 */
+    word-wrap: break-word;
+    /* Internet Explorer 5.5+ */
+}
+</style>
