@@ -265,7 +265,7 @@ const colorResult = (result: typeof enumResult[number]): { color: NuxtUIColor, i
 
 
 
-    <NewTrade v-if="bufferTrade" v-model="isEditing" :initial-data="{
+    <NewTrade v-if="bufferTrade" v-model="isEditing" is-edit :initial-data="{
         ...bufferTrade,
         side: bufferTrade.side as 'Long' | 'Short',
         strategy: bufferTrade.strategy as 'Scalping' | 'Day Trading' | 'Swing Trading' | 'Position Trading',

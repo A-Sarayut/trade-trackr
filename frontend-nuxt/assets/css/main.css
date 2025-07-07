@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@theme {
+  --font-nunito: "Nunito", sans-serif;
+}
+
 button {
   cursor: pointer;
 }

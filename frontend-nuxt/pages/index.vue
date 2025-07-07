@@ -54,11 +54,12 @@ const handleAddTrade = (trade: Trade) => {
 <template>
   <div class="grid grid-cols-1 gap-8">
     <header class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-      <CardStat title="Total Trade" :value="totalTrades" />
-      <CardStat title="Win Rate" :value="winRate" />
-      <CardStat title="Total PNL" :value="formatCurrency(parseFloat(totalPNL))" :classText="parseFloat(totalPNL) != 0 ?
-        parseFloat(totalPNL) < 0 ? 'text-error' : 'text-success'
-        : undefined" />
+      <CardStat class="text-center" title="Total Trade" :value="totalTrades" />
+      <CardStat class="text-center" title="Win Rate" :value="winRate" />
+      <CardStat class="col-span-2 text-center sm:col-span-1" title="Total PNL"
+        :value="formatCurrency(parseFloat(totalPNL))" :classText="parseFloat(totalPNL) != 0 ?
+          parseFloat(totalPNL) < 0 ? 'text-error' : 'text-success'
+          : undefined" />
     </header>
 
     <EquityCurve :trade-data="tradeHistory.tradeList" />

@@ -7,10 +7,20 @@ export const useTradeHistoryStore = defineStore(
     const tradeList = ref<Trade[]>([]);
 
     const sortData = () => {
-      tradeList.value = tradeList.value.sort(
-        (a, b) =>
-          new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
-      );
+      tradeList.value = tradeList.value.sort((a, b) => {
+        // Sort by date descending
+        const dateDiff =
+          new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime();
+        if (dateDiff !== 0) return dateDiff;
+
+        // If same date, show 'pending' first
+        if (a.result === "Pending" && b.result !== "Pending") return -1;
+        if (b.result === "Pending" && a.result !== "Pending") return 1;
+
+        return 0; // keep original order if both are same status or neither is pending
+
+        // new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
+      });
     };
 
     const addTrade = (trade: Trade) => {
