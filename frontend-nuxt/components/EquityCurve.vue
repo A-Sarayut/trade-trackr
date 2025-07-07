@@ -6,7 +6,8 @@ const props = defineProps<{
     tradeData: Trade[]
 }>()
 const data = computed(() => {
-    return calculatePNLByDay(props.tradeData)
+    const tradeData = props.tradeData.sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime())
+    return calculatePNLByDay(tradeData)
 })
 const triggerUpdate = ref(false)
 
