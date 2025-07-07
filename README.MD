@@ -1,6 +1,52 @@
-# Trade Trackr
+# 📈 Trade Trackr
 
+**Trade Trackr** is a personal trading journal and performance tracker built to help traders review, analyze, and improve their decision-making. Whether you're a momentum trader, swing trader, or scalper, Trade Trackr provides the tools to log trades and reflect on outcomes.
 
+![alt text](/utils/trade-trackr-home.png)
+![alt text](/utils/trade-trackr-new-trade.png)
 
+---
 
-![Wip](https://media1.giphy.com/media/v1.Y2lkPWUwZDJmNzlibHdiYzV4ZWNpMmFwc3FxemRlN3dyNGgzbzJrY29yamJpN3h4aHBzbCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/2JeQO72XbrQk4wNdbp/200.gif)
+## ✨ Features
+
+- 🚀 Track trade entries, exits, and PNL
+- 📊 View performance statistics (total trade, win rate, total PNL)
+- 📝 Add notes to each trade
+- 💾 100% client-side: data saved in your browser with **localStorage**
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend**: Vue.js / Nuxt 3
+- **Styling**: Tailwind CSS / Nuxt UI
+- **State Management**: Pinia
+- **Storage**: `localStorage` (no backend, no database)
+
+---
+
+## 🚀 Getting Started
+
+### Development environment
+
+- Node.js v22.16.0
+- Bun 1.2.16
+
+### Installation
+
+```bash
+git clone https://github.com/A-Sarayut/trade-trackr.git
+cd trade-trackr
+cd frontend-nuxt
+bun install
+bun run dev
+```
+
+### Installation (Docker)
+
+```bash
+cd trade-trackr
+cd frontend-nuxt
+docker build -t trade-trackr-dev .     
+docker run -p 3000:3000 trade-trackr-dev
+```

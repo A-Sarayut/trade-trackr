@@ -6,12 +6,23 @@ export default defineNuxtConfig({
     baseURL: process.env.NODE_ENV === "production" ? "/trade-trackr/" : "/",
   },
   devtools: { enabled: true },
-  modules: ["@nuxt/ui"],
+  modules: [
+    [
+      "@nuxt/ui",
+      {
+        colors: {
+          primary: "blue",
+          neutral: "zinc",
+        },
+      },
+    ],
+    "@pinia/nuxt",
+  ],
   css: ["~/assets/css/main.css"], // import global CSS styles from nuxt ui
-  ui: {
-    // fonts: false,
-    // colorMode: false
-  },
+  // ui: {
+  //   fonts: false,
+  //   colorMode: false
+  // },
   // runtimeConfig: {
   //   // The private keys which are only available server-side
   //   apiSecret: "123",

@@ -1,17 +1,30 @@
 <script setup lang="ts">
 import type { ChartData, ChartOptions } from 'chart.js'
+import { type Trade } from '~/types/trade'
 
-const chartData: ChartData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-    datasets: [
-        {
-            data: [100, 120, 99, 80, 70],
-            fill: false,
-            borderColor: 'oklch(72.3% 0.219 149.579)',
-            tension: 0.1
-        }
-    ]
-}
+const props = defineProps<{
+    tradeData: Trade[]
+}>()
+const data = computed(() => {
+    // break reactivity with Array.map to extract shallow copies
+    const tradeData = props.tradeData.map(item => ({ ...item, })).sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime());
+    return calculatePNLByDay(tradeData)
+})
+const triggerUpdate = ref(false)
+
+const chartData = computed<ChartData>(() => {
+    return {
+        labels: data.value.map(item => item.date),
+        datasets: [
+            {
+                data: data.value.map(item => item.pnl),
+                fill: false,
+                borderColor: 'oklch(72.3% 0.219 149.579)',
+                tension: 0.1
+            }
+        ]
+    }
+})
 
 const chartOptions: ChartOptions = {
     responsive: true,
@@ -34,13 +47,18 @@ const chartOptions: ChartOptions = {
         }
     }
 }
+
+watch(() => props.tradeData, () => {
+    triggerUpdate.value = !triggerUpdate.value
+}, { deep: true, immediate: true })
+
 </script>
 
 <template>
-    <div class="">
-        <h1 class="first-letter:uppercase font-bold mb-4 text-2xl">
+    <div>
+        <h1 class="first-letter:uppercase font-bold text-neutral-500 mb-4 text-2xl">
             Equity Curve
         </h1>
-        <BaseChart class="max-h-[280px]" :data="chartData" :options="chartOptions" />
+        <BaseChart class="max-h-[280px]" :data="chartData" :options="chartOptions" :key="String(triggerUpdate)" />
     </div>
 </template>
