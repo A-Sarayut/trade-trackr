@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui';
-import type { Trade } from '~/types/trade';
+import type { NuxtUIColor, NuxtUIVariant } from '~/types/nuxt-ui';
+import { enumResult, type Trade } from '~/types/trade';
 
 
 const tradeHistory = useTradeHistoryStore()
@@ -19,40 +20,57 @@ const columns: TableColumn<Trade>[] = [
     { accessorKey: 'actions', header: 'Actions', cell: () => '' }
 ]
 
+const tradeList = ref(tradeHistory.tradeList)
 const bufferTrade = ref<Trade | null>(null);
-const editTradeIndex = ref<number | null>(null);
+const tradeID = ref<string | null>(null)
 const isEditing = ref(false);
 const confirmModal = ref(false);
 
-const onEditTrade = (trade: Trade, index: number) => {
+const globalFilter = ref()
+
+// Pagination config
+const pageSize = 10
+const currentPage = ref(1)
+const totalItems = computed(() => tradeList.value.length)
+
+// Slice data based on page
+const paginatedRows = computed(() => {
+    const start = (currentPage.value - 1) * pageSize
+    return tradeList.value.slice(start, start + pageSize)
+})
+
+
+const onEditTrade = (trade: Trade, id: string) => {
     bufferTrade.value = trade;
-    editTradeIndex.value = index;
+    tradeID.value = id;
     isEditing.value = true;
 }
 
-const onDeleteTrade = (index: number) => {
+const onDeleteTrade = (id: string) => {
     confirmModal.value = true;
-    editTradeIndex.value = index;
+    tradeID.value = id;
 };
 
 const handleUpdateTrade = (trade: Trade) => {
     try {
-        if (editTradeIndex.value === null) {
-            console.error("Edit index is null, cannot update trade.");
+        if (tradeID.value === null) {
+            console.error("Edit ID is null, cannot update trade.");
             toast.add({
                 title: "Error",
                 description: "Failed to update the trade. Please try again.",
                 color: "error",
+                icon: "mdi:close-circle"
             });
             return;
         }
-        tradeHistory.updateTrade(editTradeIndex.value, trade);
+        tradeHistory.updateTrade(tradeID.value, trade);
     } catch (error) {
         console.error("Error updating trade:", error);
         toast.add({
             title: "Error",
             description: "Failed to update the trade. Please try again.",
             color: "error",
+            icon: "mdi:close-circle"
         });
         return;
     }
@@ -61,6 +79,7 @@ const handleUpdateTrade = (trade: Trade) => {
         title: "Success",
         description: "Trade updated successfully.",
         color: "success",
+        icon: "mdi:check-circle"
     });
 
     isEditing.value = false;
@@ -68,24 +87,26 @@ const handleUpdateTrade = (trade: Trade) => {
 
 const handleDeleteTrade = () => {
     try {
-        if (editTradeIndex.value === null) {
-            console.error("Delete index is null, cannot delete trade.");
+        if (tradeID.value === null) {
+            console.error("Delete ID is null, cannot delete trade.");
             toast.add({
                 title: "Error",
                 description: "Failed to delete the trade. Please try again.",
                 color: "error",
+                icon: "mdi:check-circle"
             });
             return;
         }
-        tradeHistory.removeTrade(editTradeIndex.value);
+        tradeHistory.removeTrade(tradeID.value);
     } catch (error) {
         console.error("Error deleting trade:", error);
         toast.add({
             title: "Error",
             description: "Failed to delete the trade. Please try again.",
             color: "error",
+            icon: "mdi:check-circle"
         });
-        editTradeIndex.value = null;
+        tradeID.value = null;
         return;
     }
 
@@ -93,97 +114,156 @@ const handleDeleteTrade = () => {
         title: "Success",
         description: "Trade deleted successfully.",
         color: "success",
+        icon: "mdi:check-circle"
     });
 
-    editTradeIndex.value = null;
+    tradeID.value = null;
 };
+
+const colorResult = (result: typeof enumResult[number]): { color: NuxtUIColor, icon: string } => {
+    let color: NuxtUIColor = "neutral"
+    let icon = "mdi:cancel"
+    switch (result) {
+        case "Pending":
+            color = "warning"
+            icon = "mdi:clock"
+            break;
+        case "Take profit":
+            color = "success"
+            icon = "mdi:check-circle"
+            break;
+        case "Stop profit":
+            color = "info"
+            icon = "mdi:check-underline-circle"
+            break;
+        case "Stop loss":
+            color = "error"
+            icon = "mdi:close-circle"
+            break;
+
+        default:
+            break;
+    }
+    return { color, icon }
+}
 
 </script>
 
 <template>
-    <UTable sticky :data="tradeHistory.tradeList" :columns="columns" class="flex-1">
+    <div class="flex flex-col gap-4 w-full border border-accented rounded-lg py-4">
+        <div class="px-4">
+            <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
+        </div>
 
-        <template #entryDate-cell="{ row }">
-            <td class="text-sm text-gray-500">
-                {{ row.original.entryDate ? formatDate(row.original.entryDate) : '' }}
-            </td>
-        </template>
+        <UTable sticky :data="paginatedRows" v-model:global-filter="globalFilter" :columns="columns"
+            class="flex-1 border-y border-accented">
 
-        <template #exitDate-cell="{ row }">
-            <td class="text-sm text-gray-500">
-                {{ row.original.exitDate ? formatDate(row.original.exitDate) : '' }}
-            </td>
-        </template>
+            <template #entryDate-cell="{ row }">
+                <td class="text-sm font-bold text-gray-500">
+                    {{ row.original.entryDate ? formatDate(row.original.entryDate) : '' }}
+                </td>
+            </template>
 
-        <template #side-header="h">
-            <span class="flex justify-center">
-                {{ h.header.column.columnDef.header }}
-            </span>
-        </template>
-        <template #side-cell="{ row }">
-            <span class="flex justify-center">
-                <UBadge :color="row.original.side === 'Long' ? 'success' : 'error'" variant="soft">
-                    {{ row.original.side }}
-                </UBadge>
-            </span>
-        </template>
+            <template #exitDate-cell="{ row }">
+                <td class="text-sm font-bold text-gray-500">
+                    {{ row.original.exitDate ? formatDate(row.original.exitDate) : '' }}
+                </td>
+            </template>
 
-        <template #asset-header="h">
-            <span class="flex justify-center">
-                {{ h.header.column.columnDef.header }}
-            </span>
-        </template>
-        <template #asset-cell="{ row }">
-            <td class="flex justify-center">
-                <UInput v-model="row.original.asset" variant="none" class="w-[80px]" :ui="{ 'base': 'text-center' }"
-                    maxlength="5" />
-            </td>
-        </template>
+            <template #side-header="h">
+                <span class="flex justify-center">
+                    {{ h.header.column.columnDef.header }}
+                </span>
+            </template>
+            <template #side-cell="{ row }">
+                <span class="flex justify-center">
+                    <UBadge :color="row.original.side === 'Long' ? 'success' : 'error'" variant="soft" size="lg">
+                        {{ row.original.side }}
+                    </UBadge>
+                </span>
+            </template>
 
-        <template #pnl-cell="{ row }">
-            <td class="text-sm"
-                :class="{ 'text-error': (row.original.pnl ?? 0) < 0, 'text-success': (row.original.pnl ?? 0) > 0 }">
-                {{ row.original.pnl ? row.original.pnl : '' }}
-            </td>
-        </template>
+            <template #asset-header="h">
+                <span class="flex justify-center">
+                    {{ h.header.column.columnDef.header }}
+                </span>
+            </template>
+            <template #asset-cell="{ row }">
+                <td class="flex font-bold justify-center">
+                    <p>{{ row.original.asset }}</p>
+                </td>
+            </template>
 
-        <template #note-cell="{ row }">
-            <td class="text-sm">
-                <UModal v-if="row.original.note" title="Note" :close="{
-                    color: 'primary',
-                    variant: 'outline',
-                    class: 'rounded-md'
-                }">
-                    <UButton color="neutral" icon="ic:outline-sticky-note-2" variant="link" />
+            <template #pnl-header="h">
+                <span class="flex justify-end">
+                    {{ h.header.column.columnDef.header }}
+                </span>
+            </template>
+            <template #pnl-cell="{ row }">
+                <td class="font-bold flex justify-end"
+                    :class="{ 'text-error': (row.original.pnl ?? 0) < 0, 'text-success': (row.original.pnl ?? 0) > 0 }">
+                    {{ row.original.pnl ? formatCurrency(row.original.pnl) : '' }}
+                </td>
+            </template>
 
-                    <template #body>
-                        <div class="overflow-auto">
-                            <pre class="font-sans">{{ row.original.note }}</pre>
-                        </div>
-                    </template>
-                </UModal>
-            </td>
+            <template #result-header="h">
+                <span class="flex justify-center">
+                    {{ h.header.column.columnDef.header }}
+                </span>
+            </template>
+            <template #result-cell="{ row }">
+                <td class="flex font-bold justify-center">
+                    <UBadge :color="colorResult(row.original.result as typeof enumResult[number]).color" variant="soft"
+                        size="lg" :icon="colorResult(row.original.result as typeof enumResult[number]).icon">
+                        {{ row.original.result }}
+                    </UBadge>
+                </td>
+            </template>
 
-        </template>
-
-        <template #actions-cell="{ row }">
-            <td class="text-sm">
-                <UDropdownMenu
-                    :items="[[
-                        { label: 'Edit', icon: 'ic-baseline-edit', onSelect: () => onEditTrade(row.original, row.index) },
-                        { label: 'Delete', icon: 'ic-baseline-delete-forever', color: 'error', onSelect: () => onDeleteTrade(row.index) }]]"
-                    :content="{
-                        align: 'start',
-                        side: 'bottom',
-                        sideOffset: 8
-                    }" :ui="{
-                        content: 'w-48'
+            <template #note-cell="{ row }">
+                <td class="text-sm">
+                    <UModal v-if="row.original.note" title="Note" :close="{
+                        color: 'primary',
+                        variant: 'outline',
+                        class: 'rounded-md'
                     }">
-                    <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" />
-                </UDropdownMenu>
-            </td>
-        </template>
-    </UTable>
+                        <UButton color="neutral" icon="ic:outline-sticky-note-2" variant="link" />
+
+                        <template #body>
+                            <div class="overflow-auto">
+                                <pre class="font-sans">{{ row.original.note }}</pre>
+                            </div>
+                        </template>
+                    </UModal>
+                </td>
+
+            </template>
+
+            <template #actions-cell="{ row }">
+                <td class="text-sm">
+                    <UDropdownMenu
+                        :items="[[
+                            { label: 'Edit', icon: 'ic-baseline-edit', onSelect: () => onEditTrade(row.original, row.original.id) },
+                            { label: 'Delete', icon: 'ic-baseline-delete-forever', color: 'error', onSelect: () => onDeleteTrade(row.original.id) }]]"
+                        :content="{
+                            align: 'start',
+                            side: 'bottom',
+                            sideOffset: 8
+                        }" :ui="{
+                            content: 'w-48'
+                        }">
+                        <UButton icon="i-lucide-ellipsis-vertical" color="neutral" variant="ghost" />
+                    </UDropdownMenu>
+                </td>
+            </template>
+        </UTable>
+
+        <UPagination class="ms-auto pe-4" v-model:page="currentPage" :items-per-page="pageSize" :total="totalItems"
+            :sibling-count="1" />
+    </div>
+
+
+
 
     <NewTrade v-if="bufferTrade" v-model="isEditing" :initial-data="{
         ...bufferTrade,
@@ -193,7 +273,7 @@ const handleDeleteTrade = () => {
         pnl: bufferTrade.pnl ?? undefined,
         note: bufferTrade.note ?? undefined,
         exitDate: bufferTrade.exitDate ?? undefined
-    }" :key="editTradeIndex?.toString()" @submit="handleUpdateTrade" />
+    }" :key="tradeID ?? ''" @submit="handleUpdateTrade" />
 
     <ConfirmModal v-model:open="confirmModal" @confirm="handleDeleteTrade"
         description="You really want to delete this trade" />

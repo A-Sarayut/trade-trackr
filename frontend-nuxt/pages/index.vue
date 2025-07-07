@@ -32,6 +32,7 @@ const handleAddTrade = (trade: Trade) => {
       title: "Error",
       description: "Failed to add the trade. Please try again.",
       color: "error",
+      icon: "mdi:close-circle"
     });
     return;
   }
@@ -40,6 +41,7 @@ const handleAddTrade = (trade: Trade) => {
     title: "Success",
     description: "Trade added successfully.",
     color: "success",
+    icon: "mdi:close-circle"
   });
 
   open.value = false;
@@ -60,7 +62,7 @@ const handleAddTrade = (trade: Trade) => {
     </header>
 
     <EquityCurve :trade-data="tradeHistory.tradeList" />
-    <section class="flex flex-col justify-end">
+    <section class="flex flex-col gap-2 justify-end">
       <span class="ms-auto">
         <UButton @click="open = true" label="New Trade" icon="ic-baseline-add" />
         <NewTrade v-model="open" @submit="handleAddTrade" />

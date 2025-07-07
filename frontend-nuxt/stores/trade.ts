@@ -6,16 +6,31 @@ export const useTradeHistoryStore = defineStore(
   () => {
     const tradeList = ref<Trade[]>([]);
 
+    const sortData = () => {
+      tradeList.value = tradeList.value.sort(
+        (a, b) =>
+          new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime()
+      );
+    };
+
     const addTrade = (trade: Trade) => {
       tradeList.value.push(trade);
+      sortData();
     };
 
-    const updateTrade = (index: number, value: Trade) => {
-      tradeList.value[index] = value;
+    const updateTrade = (id: string, value: Trade) => {
+      const index = tradeList.value.findIndex((item) => item.id == id);
+      if (index !== -1) {
+        tradeList.value[index] = value;
+        sortData();
+      }
     };
 
-    const removeTrade = (index: number) => {
-      tradeList.value.splice(index, 1);
+    const removeTrade = (id: string) => {
+      const index = tradeList.value.findIndex((item) => item.id == id);
+      if (index !== -1) {
+        tradeList.value.splice(index, 1);
+      }
     };
 
     return { tradeList, addTrade, updateTrade, removeTrade };

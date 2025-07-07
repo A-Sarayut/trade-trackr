@@ -4,6 +4,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import { enumResult, enumSide, enumStrategy, type Trade } from '~/types/trade'
 
 const open = defineModel({ type: Boolean, default: false })
+const currentDate = new Date().toISOString().split('T')[0]
 
 const schema = z.object({
     entryDate: z.string().date('Must be a valid date'),
@@ -57,7 +58,7 @@ onMounted(() => {
 
 
 const state = ref<Schema>({
-    entryDate: new Date().toISOString().split('T')[0], // Default to today
+    entryDate: currentDate, // Default to today
     exitDate: undefined,
     asset: "",
     side: "Long",
@@ -78,6 +79,7 @@ watch(() => state.value.result, (newValue) => {
 async function onSubmit(event: FormSubmitEvent<Schema>) {
     const newTrade = {
         ...event.data,
+        id: crypto.randomUUID(),
         exitDate: event.data.exitDate ?? null, // Always provide exitDate
         note: event.data.note ?? null, // Always provide exitDate
         pnl: event.data.pnl ?? null, // Always provide exitDate
@@ -98,11 +100,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <template #body>
             <UForm :schema="schema" :state="state" class="grid grid-cols-1 sm:grid-cols-2 gap-4" @submit="onSubmit">
                 <UFormField size="lg" label="Entry Date" name="entryDate">
-                    <UInput v-model="state.entryDate" type="date" class="input-field" />
+                    <UInput v-model="state.entryDate" type="date" class="input-field" :max="currentDate" />
                 </UFormField>
 
                 <UFormField size="lg" label="Exit Date" name="exitDate">
-                    <UInput v-model="state.exitDate" type="date" class="input-field" />
+                    <UInput v-model="state.exitDate" type="date" class="input-field" :min="state.entryDate" />
                 </UFormField>
 
                 <UFormField size="lg" label="Asset" name="asset">
