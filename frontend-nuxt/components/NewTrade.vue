@@ -8,7 +8,7 @@ const currentDate = new Date().toISOString().split('T')[0]
 
 const schema = z.object({
     entryDate: z.string().date('Must be a valid date'),
-    exitDate: z.optional(z.string().date('Must be a valid date')),
+    exitDate: z.union([z.optional(z.string().date('Must be a valid date')), z.null(), z.literal(""),]),
     asset: z.string().min(1, 'Asset is required, example: "BTC"')
         .max(5, 'Asset must be less than 5 characters'),
     side: z.enum(['Long', 'Short'], {
@@ -100,11 +100,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <template #body>
             <UForm :schema="schema" :state="state" class="grid grid-cols-1 sm:grid-cols-2 gap-4" @submit="onSubmit">
                 <UFormField size="lg" label="Entry Date" name="entryDate">
-                    <UInput v-model="state.entryDate" type="date" class="input-field" :max="currentDate" />
+                    <UInput v-model="state.entryDate" type="date" class="input-field" />
                 </UFormField>
 
                 <UFormField size="lg" label="Exit Date" name="exitDate">
-                    <UInput v-model="state.exitDate" type="date" class="input-field" :min="state.entryDate" />
+                    <UInput v-model="state.exitDate" type="date" class="input-field" />
                 </UFormField>
 
                 <UFormField size="lg" label="Asset" name="asset">
