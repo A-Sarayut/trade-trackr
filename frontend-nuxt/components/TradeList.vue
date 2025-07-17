@@ -2,6 +2,7 @@
 import type { TableColumn } from '@nuxt/ui';
 import type { NuxtUIColor, NuxtUIVariant } from '~/types/nuxt-ui';
 import { enumResult, type Trade } from '~/types/trade';
+import ExportCSV from './ExportCSV.vue';
 
 
 const tradeHistory = useTradeHistoryStore()
@@ -151,8 +152,9 @@ const colorResult = (result: typeof enumResult[number]): { color: NuxtUIColor, i
 
 <template>
     <div class="flex flex-col gap-4 w-full border border-accented rounded-lg py-4">
-        <div class="px-4">
-            <UInput v-model="globalFilter" class="max-w-sm" placeholder="Filter..." />
+        <div class="flex flex-wrap-reverse gap-x-4 gap-y-2 justify-end sm:justify-between px-4">
+            <UInput v-model="globalFilter" class="w-full sm:w-xs" placeholder="Filter..." />
+            <ExportCSV :trades="tradeList" />
         </div>
 
         <UTable sticky :data="paginatedRows" v-model:global-filter="globalFilter" :columns="columns"
