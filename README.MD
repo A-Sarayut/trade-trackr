@@ -6,6 +6,7 @@ Check out the live demo: **[Trade Trackr](https://a-sarayut.github.io/trade-trac
 
 ![alt text](/utils/trade-trackr-home.png)
 ![alt text](/utils/trade-trackr-new-trade.png)
+![alt text](/utils/trade-trackr-export.png)
 
 ---
 
