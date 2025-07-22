@@ -21,7 +21,7 @@ const columns: TableColumn<Trade>[] = [
     { accessorKey: 'actions', header: 'Actions', cell: () => '' }
 ]
 
-const tradeList = ref(tradeHistory.tradeList)
+const tradeList = computed(() => tradeHistory.tradeList)
 const bufferTrade = ref<Trade | null>(null);
 const tradeID = ref<string | null>(null)
 const isEditing = ref(false);

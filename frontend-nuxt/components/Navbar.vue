@@ -15,6 +15,9 @@
 // ] satisfies NavigationMenuItem[]
 
 const colorMode = useColorMode()
+const confirmModal = ref(false)
+const tradeHistory = useTradeHistoryStore()
+const toast = useToast();
 
 const isDark = computed({
     get() {
@@ -24,6 +27,17 @@ const isDark = computed({
         colorMode.preference = _isDark ? 'dark' : 'light'
     }
 })
+
+const handleReset = () => {
+    tradeHistory.removeAll()
+
+    toast.add({
+        title: "Success",
+        description: "Trades deleted successfully.",
+        color: "success",
+        icon: "mdi:check-circle"
+    });
+}
 </script>
 
 <template>
@@ -47,13 +61,68 @@ const isDark = computed({
                     </NuxtLink>
                 </template>
 </UNavigationMenu> -->
-            <ClientOnly v-if="!colorMode?.forced">
+            <!-- <ClientOnly v-if="!colorMode?.forced">
                 <UButton :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" color="neutral" variant="ghost"
                     @click="isDark = !isDark" />
                 <template #fallback>
                     <div class="size-8" />
                 </template>
-            </ClientOnly>
+            </ClientOnly> -->
+
+            <USlideover title="Setting" :close="{
+                color: 'primary',
+                variant: 'outline',
+                class: 'rounded-md'
+            }" :ui="{ footer: 'justify-end' }">
+                <UButton color="neutral" variant="link" icon="ic-baseline-settings" size="xl" />
+
+                <template #body>
+                    <!-- <Placeholder class="h-full" /> -->
+                    <div class="flex flex-col gap-4">
+                        <UCard>
+                            <div class="flex flex-nowrap sm:items-center gap-x-4">
+                                <div class="flex ring ring-default  rounded-md w-fit h-fit p-2">
+                                    <UIcon name="ic-outline-dark-mode" class="size-8 text-blue-800" />
+                                </div>
+                                <div class="flex items-center justify-between flex-1 gap-2 flex-wrap">
+                                    <div>
+                                        <h3 class="font-semibold">
+                                            Dark Theme
+                                        </h3>
+                                        <small class="text-neutral-500">
+                                            Switch to dark mode
+                                        </small>
+                                    </div>
+                                    <USwitch v-model="isDark" />
+                                </div>
+                            </div>
+                        </UCard>
+
+                        <UCard>
+                            <div class="flex flex-nowrap sm:items-center  gap-x-4">
+                                <div class="flex ring ring-default rounded-md w-fit h-fit p-2">
+                                    <UIcon name="ic-twotone-delete-forever" class="size-8 text-error" />
+                                </div>
+                                <div class="flex items-center justify-between flex-1 gap-2 flex-wrap">
+                                    <div>
+                                        <h3 class="font-semibold">
+                                            Reset All Data
+                                        </h3>
+                                        <small class="text-neutral-500">
+                                            Permanently delete all trade data
+                                        </small>
+                                    </div>
+                                    <UButton color="error" variant="outline" @click="confirmModal = true">Reset
+                                    </UButton>
+                                </div>
+                            </div>
+                        </UCard>
+                    </div>
+                </template>
+            </USlideover>
+
+            <ConfirmModal v-model:open="confirmModal" @confirm="handleReset"
+                description="Your trade history will be permanently deleted " color="error" />
         </div>
     </div>
 </template>

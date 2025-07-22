@@ -43,7 +43,11 @@ export const useTradeHistoryStore = defineStore(
       }
     };
 
-    return { tradeList, addTrade, updateTrade, removeTrade };
+    const removeAll = () => {
+      tradeList.value = []
+    }
+
+    return { tradeList, addTrade, updateTrade, removeTrade, removeAll };
   },
   {
     persist: true,
