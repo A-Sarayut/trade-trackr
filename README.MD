@@ -2,6 +2,8 @@
 
 **Trade Trackr** is a personal trading journal and performance tracker built to help traders review, analyze, and improve their decision-making. Whether you're a momentum trader, swing trader, or scalper, Trade Trackr provides the tools to log trades and reflect on outcomes.
 
+Check out the live demo: **[Trade Trackr](https://a-sarayut.github.io/trade-trackr/)**
+
 ![alt text](/utils/trade-trackr-home.png)
 ![alt text](/utils/trade-trackr-new-trade.png)
 
@@ -12,6 +14,7 @@
 - 🚀 Track trade entries, exits, and PNL
 - 📊 View performance statistics (total trade, win rate, total PNL)
 - 📝 Add notes to each trade
+- 📤 Export trade data in JSON and CSV formats
 - 💾 100% client-side: data saved in your browser with **localStorage**
 
 ---

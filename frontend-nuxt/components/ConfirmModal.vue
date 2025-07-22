@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { NuxtUIColor } from '~/types/nuxt-ui';
+
 const props = defineProps<{
     title?: string,
-    description?: string
+    description?: string,
+    color?: NuxtUIColor,
 }>();
 const emit = defineEmits(['confirm', 'cancel']);
 const open = defineModel<boolean>('open', { default: false });
@@ -16,7 +19,7 @@ const open = defineModel<boolean>('open', { default: false });
     }" :ui="{ footer: 'justify-end gap-4' }">
         <template #footer>
             <UButton label="Cancel" color="neutral" variant="outline" @click="() => { emit('cancel'); open = false }" />
-            <UButton label="Confirm" color="warning" @click="() => { emit('confirm'); open = false }" />
+            <UButton label="Confirm" :color="props.color ?? 'warning'" @click="() => { emit('confirm'); open = false }" />
         </template>
 
 
